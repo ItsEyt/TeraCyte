@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TeraCyte Full-Stack Assignment — Live Image Dashboard</title>
+  <style>
+    @media print { body { margin: 0; } .page-break { page-break-before: always; } }
+    :root { --accent:#0066cc; --muted:#666; --bg:#ffffff; --soft:#f8f9fa; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6; color:#333; max-width: 210mm; margin: 0 auto;
+      padding: 20mm; background: var(--bg);
+    }
+    .header { text-align:center; margin-bottom:40px; padding-bottom:20px; border-bottom:3px solid var(--accent); }
+    .header h1 { color:var(--accent); font-size:28px; margin-bottom:10px; font-weight:700; }
+    .header .subtitle { color:var(--muted); font-size:16px; font-style:italic; }
+    h2 { color:var(--accent); font-size:20px; margin-top:30px; margin-bottom:15px; padding-left:10px; border-left:4px solid var(--accent); }
+    h3 { color:#333; font-size:16px; margin-top:25px; margin-bottom:10px; }
+    .emoji-header { font-size:22px; }
+    .mission-box { background: var(--soft); border:2px solid var(--accent); border-radius:8px; padding:20px; margin:20px 0; }
+    .api-endpoint { background:#f1f3f4; border-left:4px solid #34a853; padding:15px; margin:10px 0; font-family:'Courier New', monospace; font-size:14px; border-radius:4px; }
+    .credentials-box { background:#fff3cd; border:1px solid #ffeaa7; border-radius:6px; padding:15px; margin:15px 0; }
+    .code-block { background:#f8f8f8; border:1px solid #ddd; border-radius:4px; padding:15px; margin:10px 0; font-family:'Courier New', monospace; font-size:13px; overflow-x:auto; white-space:pre-wrap; }
+    .evaluation-table { width:100%; border-collapse:collapse; margin:20px 0; }
+    .evaluation-table th,.evaluation-table td { border:1px solid #ddd; padding:12px; text-align:left; vertical-align:top; }
+    .evaluation-table th { background:var(--accent); color:white; font-weight:600; }
+    .evaluation-table tr:nth-child(even) { background:#f9f9f9; }
+    .highlight-box { background:#e7f3ff; border:1px solid #b3d9ff; border-radius:6px; padding:15px; margin:15px 0; }
+    .warning-box { background:#fff2f2; border:1px solid #ffb3b3; border-radius:6px; padding:15px; margin:15px 0; }
+    ul,ol { padding-left:25px; } li { margin-bottom:8px; }
+    .checklist { list-style-type:none; padding-left:0; } .checklist li:before { content:"✅ "; margin-right:8px; }
+    .bonus-list { background:#f0f8f0; border-left:4px solid #4caf50; padding:15px; margin:15px 0; border-radius:4px; }
+    .time-highlight { background:#fffbf0; border:2px solid #ff9800; border-radius:8px; padding:20px; margin:20px 0; text-align:center; }
+    .footer { text-align:center; margin-top:40px; padding-top:20px; border-top:2px solid var(--accent); color:#666; font-size:18px; font-weight:600; }
+    .section-divider { border-top:2px solid #e0e0e0; margin:30px 0; }
+    blockquote { background:#f9f9f9; border-left:4px solid #ccc; margin:0; padding:15px; font-style:italic; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🧪 TeraCyte Full-Stack Home Assignment</h1>
+    <div class="subtitle">Live Image Dashboard with Inference Overlay (Desktop-only UI)</div>
+  </div>
+
+  <h2 class="emoji-header">🧬 About the Assignment</h2>
+  <p>
+    At TeraCyte, we build microscopy and AI systems that stream image data and real-time inference.
+    In this assignment you will implement a <strong>Python backend</strong> and a <strong>desktop-only web frontend</strong>
+    that authenticate, poll protected endpoints on the <em>hosted TeraCyte server</em>, and render images, metrics, and a histogram.
+  </p>
+
+  <div class="section-divider"></div>
+
+  <h2 class="emoji-header">🎯 Your Mission</h2>
+  <div class="mission-box">
+    <p><strong>Build a full-stack app consisting of:</strong></p>
+
+    <p><strong>1) Backend (Python)</strong> — act as a thin proxy/auth client to the hosted API and manage JWT lifecycle:</p>
+    <ul>
+      <li><code>POST /api/auth/login</code> — obtain access &amp; refresh tokens</li>
+      <li><code>POST /api/auth/refresh</code> — renew access token</li>
+      <li><code>GET /api/auth/me</code> — get current user</li>
+      <li><code>GET /api/image</code> — fetch latest microscope image (base64 PNG) + <code>image_id</code></li>
+      <li><code>GET /api/results</code> — fetch metrics for that <code>image_id</code></li>
+      <li>Use the <em>hosted</em> TeraCyte server below.</li>
+    </ul>
+
+    <p><strong>2) Frontend (any framework)</strong> — desktop-only UI that:</p>
+    <ul>
+      <li>Authenticates with JWT and <strong>auto-refreshes</strong> tokens</li>
+      <li>Polls <code>/api/image</code> and <code>/api/results</code> periodically</li>
+      <li>Detects new <code>image_id</code> and updates the view</li>
+      <li>Displays the image, metrics (<code>intensity_average</code>, <code>focus_score</code>, <code>classification_label</code>)</li>
+      <li>Renders a 256-bin <strong>histogram</strong> (chart)</li>
+    </ul>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <h2 class="emoji-header">🔗 Hosted API Endpoints</h2>
+  <p>You must call the TeraCyte-hosted endpoints below (no custom remote data endpoints):</p>
+  <div class="highlight-box">
+    <strong>Base URL:</strong> <code>https://assignment-server-rv-866595813231.us-central1.run.app/</code>
+  </div>
+
+  <h3>Authentication</h3>
+  <div class="api-endpoint">POST /api/auth/login</div>
+  <div class="api-endpoint">POST /api/auth/refresh</div>
+  <div class="api-endpoint">GET /api/auth/me</div>
+
+  <h3>Protected Data</h3>
+  <div class="api-endpoint">GET /api/image</div>
+  <div class="api-endpoint">GET /api/results</div>
+
+  <div class="warning-box">
+    <p><strong>Note:</strong> Access tokens expire frequently to test refresh logic. Poll responsibly, detect new <code>image_id</code>, and handle 401s with a smooth user experience.</p>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <h2 class="emoji-header">📦 Example API Payloads</h2>
+  <h3>/api/image</h3>
+  <div class="code-block">{ "image_id": "img_20250716_101502", "timestamp": "2025-07-16T10:15:02Z", "image_data_base64": "<base64_encoded_png>" }</div>
+
+  <h3>/api/results</h3>
+  <div class="code-block">{ "image_id": "img_20250716_101502", "intensity_average": 126.4, "focus_score": 0.81, "classification_label": "Healthy", "histogram": [3, 8, 22, ..., 1] }</div>
+
+  <h3>/api/auth/login (POST)</h3>
+  <p><strong>Request:</strong></p>
+  <div class="code-block">{ "username": "interviewer1", "password": "teracyte2024" }</div>
+
+  <p><strong>Response:</strong></p>
+  <div class="code-block">{ "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", "token_type": "bearer", "expires_in": 3600 }</div>
+
+  <h3>/api/auth/refresh (POST)</h3>
+  <p><strong>Request:</strong></p>
+  <div class="code-block">{ "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." }</div>
+
+  <p><strong>Response:</strong></p>
+  <div class="code-block">{ "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", "token_type": "bearer", "expires_in": 3600 }</div>
+
+  <div class="section-divider"></div>
+
+  <h2 class="emoji-header">🛠️ Technical Guidelines</h2>
+  <ul>
+    <li><strong>Backend:</strong> Python (FastAPI / Flask / Django REST). Implement JWT + refresh as a client to the hosted API.</li>
+    <li><strong>Frontend:</strong> Any framework (React / Vue / Angular / etc.). Desktop layout only.</li>
+    <li><strong>Local DB</strong>: Persist fetched results locally (e.g., SQLite recommended). Use it to power the History panel and Stats. Provide either the <code>.db</code> file, a dump, or a <code>docker-compose.yml</code> to recreate it.</li>
+    <li>Apply one classical image-processing step; provide an Original/Processed toggle.</li>
+    <li>Only update when <code>image_id</code> changes; render a 256-bin histogram.</li>
+    <li>Secure token storage; graceful 401 handling and retry logic.</li>
+    <li>Prefer typed models (pydantic / dataclasses) and clean separation of concerns.</li>
+  </ul>
+
+  <div class="section-divider"></div>
+
+  <h2 class="emoji-header">✅ What We're Evaluating</h2>
+  <table class="evaluation-table">
+    <thead><tr><th>Category</th><th>What We Look For</th></tr></thead>
+    <tbody>
+      <tr><td>Authentication</td><td>JWT login, refresh, secure storage, auth state flow</td></tr>
+      <tr><td>Error Handling</td><td>Graceful 401/403, retries, user feedback</td></tr>
+      <tr><td>Functionality</td><td>Correct polling, pairing image/results, histogram rendering</td></tr>
+      <tr><td>History UX</td><td>Usable history toggle/panel fed by local persistence</td></tr>
+      <tr><td>Image Processing</td><td>Clear implementation and UX (Original vs Processed)</td></tr>
+      <tr><td>Local DB</td><td>Schema design, ORM/ODM usage, queries, and data lifecycle</td></tr>
+      <tr><td>UI/UX</td><td>Figma fidelity, visual clarity, desktop layout, accessibility basics</td></tr>
+      <tr><td>Architecture</td><td>Readme diagram; containerization; environment config</td></tr>
+      <tr><td>Extras</td><td>MCP Code Assistant artifacts, logging, CI</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-divider"></div>
+
+  <h2 class="emoji-header">📤 Deliverables</h2>
+  <ul class="checklist">
+    <li>Complete GitHub repo or zip</li>
+    <li><code>README.md</code> including:
+      <ul>
+        <li>How to run locally (and via Docker / docker-compose if provided)</li>
+        <li>Architecture diagram + decisions</li>
+        <li>Local DB schema (ORM models, ERD, or dump instructions)</li>
+        <li>Notes on image-processing choice</li>
+        <li>(Optional) short video / screenshots</li>
+      </ul>
+    </li>
+    <li>Include your local DB: <code>data.db</code> (SQLite), a dump (<code>.sql</code>/<code>.json</code>), or <code>docker-compose.yml</code> to recreate it.</li>
+    <li><strong>AI-Driven Dev Tools</strong> output (graph JSON/DOT, lint/test reports, or code search findings)</li>
+  </ul>
+  <blockquote>Submissions without a README or an incomplete implementation may be disqualified.</blockquote>
+
+  <div class="section-divider"></div>
+
+  <h2 class="emoji-header">🧪 Optional Bonus Features</h2>
+  <div class="bonus-list">
+    <ul>
+      <li><strong>Image Processing</strong> — implement one classical step using OpenCV / scikit-image and show <em>Original</em> vs <em>Processed</em> (toggle). The processing must reveal new info about the image.</li>
+      <li><strong>Local Persistence (DB) + History button</strong> — Persist fetched <code>(image_id, timestamp, metrics, classification, histogram)</code> locally; use it for the History panel and a simple Stats widget. No new remote endpoints required.</li>
+      <li><strong>AI-Driven Dev Tools</strong> — use MCP (or similar) to generate a dependency graph, docstrings/types, run lint/tests, or do AI code search. Include artifacts.</li>
+      <li><strong>Docker</strong> (frontend &amp; backend) or docker-compose</li>
+      <li><strong>Visual polish</strong>, transitions, and graceful error states</li>
+    </ul>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <div class="footer">
+    <h2>Good luck!</h2>
+    <p>We’re excited to see your approach and how you bring data to life.</p>
+  </div>
+</body>
+</html>
